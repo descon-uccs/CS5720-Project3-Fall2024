@@ -1,0 +1,96 @@
+\documentclass{article}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[margin=1in]{geometry}
+\usepackage{listings}
+\usepackage{caption}
+\captionsetup{font=small, labelfont=bf, labelsep=colon}
+
+\title{CS 5720 Project 3: Knapsack Problem Analysis}
+\author{Your Name}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section*{Introduction}
+This report explores the performance of two dynamic programming algorithms for solving the Knapsack problem: the bottom-up approach and the top-down approach with memoization. Performance comparisons are provided under various conditions, including random and low-weight inputs, and an illustration of the pseudopolynomial-time complexity.
+
+\section{Deliverable 1: Code Implementation and Verification of Correctness}
+\subsection*{Code for Bottom-Up Dynamic Programming Approach}
+\begin{lstlisting}[language=Python]
+def knapsack_bottom_up(weights, values, capacity):
+    n = len(weights)
+    dp = [[0 for _ in range(capacity + 1)] for _ in range(n + 1)]
+    
+    for i in range(1, n + 1):
+        for w in range(capacity + 1):
+            if weights[i - 1] <= w:
+                dp[i][w] = max(dp[i - 1][w], dp[i - 1][w - weights[i - 1]] + values[i - 1])
+            else:
+                dp[i][w] = dp[i - 1][w]
+    
+    return dp[n][capacity]
+\end{lstlisting}
+
+\subsection*{Code for Top-Down Dynamic Programming Approach}
+\begin{lstlisting}[language=Python]
+def knapsack_top_down(weights, values, capacity):
+    n = len(weights)
+    memo = {}
+    
+    def helper(i, w):
+        if (i, w) in memo:
+            return memo[(i, w)]
+        if i == 0 or w == 0:
+            result = 0
+        elif weights[i - 1] <= w:
+            result = max(helper(i - 1, w), helper(i - 1, w - weights[i - 1]) + values[i - 1])
+        else:
+            result = helper(i - 1, w)
+        
+        memo[(i, w)] = result
+        return result
+    
+    return helper(n, capacity)
+\end{lstlisting}
+
+Both implementations have been verified with small test cases and returned identical outputs, confirming their correctness.
+
+\section{Deliverable 2: Performance Comparison with Random Inputs}
+\subsection*{Plot of Execution Time for Random Inputs}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{plot_random_inputs.png}
+    \caption{Execution time of Knapsack algorithms as a function of capacity \( W \) for different item counts \( n \) with random weights and values.}
+\end{figure}
+
+\subsection*{Discussion}
+The plot illustrates that both the bottom-up and top-down approaches have similar trends, with the top-down approach showing a slight advantage in cases with larger \( W \). This aligns with expectations as memoization helps avoid unnecessary recomputations.
+
+\section{Deliverable 3: Performance Comparison with Low Weights}
+\subsection*{Plot of Execution Time for Low-Weight Inputs}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{plot_low_weights.png}
+    \caption{Execution time of Knapsack algorithms for low-weight inputs.}
+\end{figure}
+
+\subsection*{Discussion}
+With low-weight inputs, both algorithms perform more closely due to the reduced complexity in the number of potential subproblems. The top-down approach continues to exhibit marginally better performance due to memoization.
+
+\section{Deliverable 4: Illustration of Pseudopolynomial-Time Complexity}
+\subsection*{Plot of Pseudopolynomial-Time Complexity}
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{plot_pseudopolynomial.png}
+    \caption{Illustration of pseudopolynomial-time complexity by plotting runtime versus representation size of \( W \).}
+\end{figure}
+
+\subsection*{Discussion}
+The pseudopolynomial nature of the algorithms is evident, as runtime scales with the magnitude of \( W \) rather than its binary size. This behavior emphasizes the limitations of dynamic programming solutions for large \( W \).
+
+\section*{Conclusion}
+This project successfully compared two dynamic programming approaches to the Knapsack problem under various input scenarios, highlighting differences in execution time and the implications of pseudopolynomial complexity.
+
+\end{document}
